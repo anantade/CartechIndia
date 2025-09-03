@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+
 const SignUp = require("../Model/SingUpSchema");
+const jwt = require("jsonwebtoken");
 
 // Secret key for JWT (use environment variable in production)
 const JWT_SECRET = "g7vbj^*&^*&^24gfoiwrbgG";
@@ -35,19 +36,11 @@ const signUp = async (req, res) => {
       return res.status(400).json({ message: "Unsuccessful signup" });
     }
 
-    // 3. Generate JWT token
-    const token = jwt.sign(
-      { id: result._id, email: result.email, role: result.role },
-      JWT_SECRET,
-      { expiresIn: "1h" } // token expires in 1 hour
-    );
-
     res.status(201).json({
       message: "Successfully signed up",
-      token,
     });
   } catch (error) {
-    // handle duplicate key error
+    
     if (error.code === 11000) {
       return res
         .status(400)
@@ -57,4 +50,33 @@ const signUp = async (req, res) => {
   }
 };
 
-module.exports = { signUp };
+const signIn = async(req,res) => {
+  try {
+    const {email,password} = req.body
+     const user  = await SignUp.findOne({email})
+      if (!user) {
+      return  res.status(400).json({ message: "Invalid email or password" })
+      }
+
+      const isMatch = await bcrypt.compare(password,user.password)
+
+      if (!isMatch) {
+        return res.status(400).json({ message: "Invalid email or password" })
+      }
+
+      const token = jwt.sign(
+      { id: user._id, role: user.role, email: user.email },
+      JWT_SECRET, // use process.env.JWT_SECRET in real projects
+      { expiresIn: "1h" }
+    );
+
+     res.status(200).json({
+      message: "Login successful",
+      token,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error })
+  }
+}
+
+module.exports = { signUp ,signIn};
