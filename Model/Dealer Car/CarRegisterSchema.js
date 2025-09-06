@@ -1,3 +1,4 @@
+
 const { Schema, model } = require("mongoose");
 
 const RegisterCar = new Schema(
@@ -69,21 +70,14 @@ const RegisterCar = new Schema(
       type: Number, // 1 for first owner, 2 for second, etc.
       required: true,
     },
-    carImages: [
-      {
-        type: String, // store image URLs
-      },
-    ],
-    documents: {
-      rcBook: { type: String }, // file URL/path
-      insurancePaper: { type: String },
-      pollutionCertificate: { type: String },
-    },
     status: {
       type: String,
       enum: ["Available", "Sold", "Pending"],
       default: "Available",
     },
+     // References
+  carImages: [{ type: Schema.Types.ObjectId, ref: "CarImage" }],
+  documents: [{ type: Schema.Types.ObjectId, ref: "CarDocument" }]
   },
   { timestamps: true }
 );

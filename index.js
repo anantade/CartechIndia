@@ -1,19 +1,22 @@
 
-const express = require('express')
-const app = express()
-const {connectToDataBase} = require('./Connection')
-const SingUprouter = require('./Routes/SIgnUpRoutes')
-const {addCarRoute} = require('./Routes/DealerAddCarRoute')
+const express = require("express");
+const path = require("path");
+const app = express();
+const { connectToDataBase } = require("./Connection");
+const SingUprouter = require("./Routes/SIgnUpRoutes");
+const { addCarRoute } = require("./Routes/DealerCarRoute");
 
+// Middleware
 app.use(express.json());
 
+// 🔹 Serve uploads folder statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // Connection To DataBase
-connectToDataBase()
+connectToDataBase();
 
-// SignUP Router
-app.use(SingUprouter)
+// Routers
+app.use(SingUprouter);
+app.use(addCarRoute);
 
-// Dealer Router
-app.use(addCarRoute)
-
-app.listen(3000,() => console.log(`Server running at 3000`))
+app.listen(3000, () => console.log(`Server running at 3000`));
